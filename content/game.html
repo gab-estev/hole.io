@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Your VOID multiplayer arena." />
+    <title>VOID — The arena</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    
+    <script type="module" src="/assets/game.js"></script>
+  </head>
+  <body class="game-page">
+    <header class="site-header">
+      <a class="wordmark" href="/"
+        ><span class="brand-hole"></span>VOID<span class="brand-dot">®</span></a
+      ><span class="header-caption"
+        >THE ARENA / TWO PLAYERS / ONE APPETITE</span
+      >
+      <div class="account">
+        <span id="account-name">Connecting…</span
+        ><button class="text-button" id="logout">Log out ↗</button>
+      </div>
+    </header>
+    <main class="arena-layout">
+      <aside class="arena-sidebar">
+        <div class="eyebrow">
+          <span class="status-dot" id="connection-dot"></span
+          ><span id="connection">CONNECTING</span>
+        </div>
+        <h1>Pick your<br /> playground.</h1>
+        <p class="muted">Bring a friend. Leave nothing behind.</p>
+        <div class="map-picker" role="group" aria-label="Select map">
+          <button
+            class="map-option selected"
+            data-map="city"
+            aria-pressed="true"
+          >
+            <span class="map-symbol">▥</span
+            ><span
+              ><strong>City limits</strong><small>Concrete buffet</small></span
+            ><span class="map-index">01</span></button
+          ><button class="map-option" data-map="forest" aria-pressed="false">
+            <span class="map-symbol">♠</span
+            ><span
+              ><strong>Forest feast</strong><small>Wildly hungry</small></span
+            ><span class="map-index">02</span></button
+          ><button class="map-option" data-map="space" aria-pressed="false">
+            <span class="map-symbol">✦</span
+            ><span
+              ><strong>Space case</strong><small>Cosmic cravings</small></span
+            ><span class="map-index">03</span>
+          </button>
+        </div>
+        <p id="lobby-status" class="lobby-status" aria-live="polite">
+          Checking the arena…
+        </p>
+        <button class="button primary wide" id="join" disabled>
+          Enter arena <span>↗</span></button
+        ><button class="button secondary wide" id="leave" hidden>
+          Cancel waiting
+        </button>
+        <p class="error" id="game-error" role="alert"></p>
+        <div class="personal-stats">
+          <div><strong id="stat-best">0</strong><span>PERSONAL BEST</span></div>
+          <div><strong id="stat-wins">0</strong><span>WINS</span></div>
+          <div><strong id="stat-games">0</strong><span>ROUNDS</span></div>
+        </div>
+        <div class="controls-note">
+          <span class="eyebrow">A QUICK REMINDER</span>
+          <p>
+            <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys to
+            move.<br />Hold & drag with mouse or touch.<br />Eat small objects
+            to grow. At 20% larger, you can swallow your rival.
+          </p>
+        </div>
+      </aside>
+      <section class="arena-main">
+        <div class="arena-toolbar">
+          <span id="map-label">CITY LIMITS</span><span id="ping">— ms</span>
+        </div>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas
+            id="game-canvas"
+            tabindex="0"
+            aria-label="Game arena. Use WASD or arrow keys, or drag to move."
+          ></canvas>
+          <div class="scoreboard" id="scoreboard" hidden>
+            <div class="player-score">
+              <span id="you-name">YOU</span><strong id="you-score">0</strong>
+            </div>
+            <div class="round-clock">
+              <small>TIME LEFT</small><strong id="timer">2:00</strong>
+            </div>
+            <div class="player-score rival">
+              <span id="rival-name">RIVAL</span
+              ><strong id="rival-score">0</strong>
+            </div>
+          </div>
+          <div class="arena-overlay" id="overlay">
+            <span class="overlay-hole"></span
+            ><span class="eyebrow" id="overlay-eyebrow"
+              >YOUR TABLE IS READY</span
+            >
+            <h2 id="overlay-title">
+              A world of possibilities.<br />A very hungry hole.
+            </h2>
+            <p id="overlay-copy">
+              Choose a map and enter the arena.<br />The round begins when your
+              rival joins.
+            </p>
+          </div>
+          <div class="canvas-footer">
+            <span id="size-label">SMALL BEGINNINGS. BIG FINISHES.</span
+            ><span>◎ MOVE · EAT · GROW</span>
+          </div>
+        </div>
+        <div class="history-heading">
+          <h2>Your recent rounds</h2>
+          <button class="text-button" id="refresh-history">Refresh ↻</button>
+        </div>
+        <div class="history-list" id="history" aria-live="polite">
+          <p class="muted">Your first round is waiting to happen.</p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span class="wordmark">VOID<span class="brand-dot">®</span></span
+      ><span>Two minutes. Make them count.</span
+      ><span>YOUR NEXT RIVAL COULD BE A FRIEND ↗</span>
+    </footer>
+  </body>
+</html>
+
+

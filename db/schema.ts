@@ -1,0 +1,7 @@
+import { sqliteTable, integer, text, primaryKey, index } from 'drizzle-orm/sqlite-core';
+export const users=sqliteTable('game_users',{id:integer('id').primaryKey({autoIncrement:true}),username:text('username').notNull().unique(),passwordHash:text('password_hash').notNull(),createdAt:integer('created_at').notNull()});
+export const sessions=sqliteTable('game_sessions',{tokenHash:text('token_hash').primaryKey(),userId:integer('user_id').notNull().references(()=>users.id),expiresAt:integer('expires_at').notNull()},t=>[index('session_expiry').on(t.expiresAt)]);
+export const arena=sqliteTable('game_arena',{id:integer('id').primaryKey(),version:integer('version').notNull(),state:text('state').notNull()});
+export const matches=sqliteTable('game_matches',{id:text('id').primaryKey(),map:text('map').notNull(),reason:text('reason').notNull(),durationSeconds:integer('duration_seconds').notNull(),endedAt:integer('ended_at').notNull(),finalState:text('final_state').notNull()});
+export const scores=sqliteTable('game_scores',{matchId:text('match_id').notNull().references(()=>matches.id),userId:integer('user_id').notNull().references(()=>users.id),score:integer('score').notNull(),radius:integer('radius').notNull(),result:text('result').notNull()},t=>[primaryKey({columns:[t.matchId,t.userId]}),index('scores_user').on(t.userId)]);
+export const limits=sqliteTable('game_limits',{key:text('key').primaryKey(),count:integer('count').notNull(),expiresAt:integer('expires_at').notNull()});

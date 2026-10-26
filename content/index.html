@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A tiny black hole. A very big appetite. Play a real-time two-player arena across three worlds."
+    />
+    <title>VOID — A little hole. A big appetite.</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script type="module" src="/assets/auth.js"></script>
+  </head>
+  <body class="landing">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="VOID home"
+        ><span class="brand-hole"></span>VOID<span class="brand-dot">®</span></a
+      ><span class="header-caption">SMALL HOLE. BIG ENERGY.</span
+      ><span class="pill"
+        ><span class="status-dot"></span> TWO-PLAYER ARCADE</span
+      >
+    </header>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="line"></span> YOUR NEXT TWO-MINUTE OBSESSION
+          </div>
+          <h1>Make room.<br /><span>Eat everything.</span></h1>
+          <p class="hero-description">
+            Start small. Swallow a city. Outgrow your rival.<br />There's only
+            room for one at the top of the food chain.
+          </p>
+          <div class="hero-tags">
+            <span>↗ Live multiplayer</span><span>◎ Three worlds</span
+            ><span>◷ 120 seconds</span>
+          </div>
+          <div class="auth-card">
+            <div class="auth-heading">
+              <div>
+                <span class="eyebrow">READY WHEN YOU ARE</span>
+                <h2 id="auth-title">Enter the void.</h2>
+              </div>
+              <div class="auth-tabs" role="group" aria-label="Account action">
+                <button
+                  id="login-tab"
+                  class="active"
+                  type="button"
+                  aria-pressed="true"
+                >
+                  Log in</button
+                ><button id="register-tab" type="button" aria-pressed="false">
+                  Sign up
+                </button>
+              </div>
+            </div>
+            <form id="auth-form">
+              <div class="form-fields">
+                <label
+                  >Username<input
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="20"
+                    pattern="[a-zA-Z0-9_]{3,20}"
+                    placeholder="Your arena name"
+                    required /></label
+                ><label
+                  >Password<input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    minlength="10"
+                    maxlength="128"
+                    placeholder="At least 10 characters"
+                    required
+                /></label>
+              </div>
+              <p id="auth-error" class="error" role="alert"></p>
+              <button
+                class="button primary wide"
+                id="auth-submit"
+                type="submit"
+              >
+                Log in & play <span>↗</span>
+              </button>
+              <p id="auth-note" class="fine-print">
+                Your scores stay with you. Pick up where you left off.
+              </p>
+            </form>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="visual-label">
+            <span class="status-dot"></span> A SMALL PREVIEW OF TOTAL CHAOS
+            <span>01 / 03</span>
+          </div>
+          <canvas
+            id="preview"
+            aria-label="An illustrated city with a black hole"
+          ></canvas>
+          <div class="visual-bottom">
+            <div>
+              <span class="eyebrow">THE CITY IS YOUR SNACK.</span>
+              <p>Everything must go.</p>
+            </div>
+            <span class="round-arrow">↘</span>
+          </div>
+          <div class="orbit-note">GROW. GULP. REPEAT.</div>
+        </div>
+      </section>
+      <section class="world-section">
+        <div class="section-title">
+          <h2>Three worlds. Same appetite.</h2>
+          <p>New scenery. More things to swallow.</p>
+        </div>
+        <div class="world-grid">
+          <article class="world-card city">
+            <span class="world-number">01 / CONCRETE BUFFET</span>
+            <div class="world-icon">▥</div>
+            <h3>City limits</h3>
+            <p>Traffic cones → cars → buildings</p>
+            <span class="world-tag">URBAN PLAYGROUND</span>
+          </article>
+          <article class="world-card forest">
+            <span class="world-number">02 / WILDLY HUNGRY</span>
+            <div class="world-icon">♠</div>
+            <h3>Forest feast</h3>
+            <p>Mushrooms → bushes → trees</p>
+            <span class="world-tag">INTO THE GREEN</span>
+          </article>
+          <article class="world-card space">
+            <span class="world-number">03 / COSMIC CRAVINGS</span>
+            <div class="world-icon">✦</div>
+            <h3>Space case</h3>
+            <p>Crystals → satellites → planets</p>
+            <span class="world-tag">OUT OF THIS WORLD</span>
+          </article>
+        </div>
+      </section>
+      <section class="how-section">
+        <h2>Less rules.<br />More swallowing.</h2>
+        <div>
+          <span>01</span>
+          <h3>Move your hole</h3>
+          <p>WASD, arrow keys, mouse, or touch. You choose.</p>
+        </div>
+        <div>
+          <span>02</span>
+          <h3>Work up an appetite</h3>
+          <p>Start with the small stuff. Bigger bites unlock as you grow.</p>
+        </div>
+        <div>
+          <span>03</span>
+          <h3>Go for the rival</h3>
+          <p>Get 20% larger, get close, and take the whole arena.</p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a class="wordmark" href="/">VOID<span class="brand-dot">®</span></a
+      ><span>An original little arena, inspired by the hole-eating genre.</span
+      ><span>BUILT FOR A FRIENDLY RIVALRY ↗</span>
+    </footer>
+  </body>
+</html>
