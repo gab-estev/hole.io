@@ -22,6 +22,7 @@ let objects = new Map(),
   receivedAt = 0,
   joined = false,
   joinPending = false;
+let lastWinnerId = null;
 let width = 800,
   height = 560,
   dpr = 1,
@@ -201,6 +202,19 @@ $("#join").addEventListener("click", () => {
       setPhase(phase);
     });
 });
+$("#rematch-request").addEventListener("click", () => {
+  socket.timeout(5000).emit("match:rematch-request", (err, result) => {
+    if (err || result?.error) { $("#game-error").textContent = err?.message || result.error; return; }
+    $("#rematch-request").hidden = true;
+    $("#rematch-status").hidden = false;
+    $("#rematch-status").textContent = "Rematch requested. Waiting for the winner to accept…";
+  });
+});
+$("#rematch-accept").addEventListener("click", () => {
+  socket.timeout(5000).emit("match:rematch-accept", (err, result) => {
+    if (err || result?.error) $("#game-error").textContent = err?.message || result.error;
+  });
+});
 $("#leave").addEventListener("click", () => {
   if (!joined) return;
   socket.emit("match:leave");
@@ -274,6 +288,13 @@ function wireSocket() {
     currentLobby = data;
     lobbyText();
   });
+  socket.on("match:rematch-state", ({ matchId, rematch }) => {
+    if (roomId && matchId !== roomId) return;
+    $("#rematch-request").hidden = !(phase === "ended" && lastWinnerId !== null && lastWinnerId !== user.id && !rematch);
+    $("#rematch-accept").hidden = !(phase === "ended" && lastWinnerId === user.id && !!rematch && !rematch.acceptedAt);
+    $("#rematch-status").hidden = !rematch;
+    if (rematch) $("#rematch-status").textContent = lastWinnerId === user.id ? "Your rival requested a rematch." : "Rematch requested. Waiting for the winner to accept…";
+  });
   socket.on("match:waiting", (data) => {
     joined = true;
     setPhase("waiting");
@@ -287,6 +308,8 @@ function wireSocket() {
   socket.on("match:start", (data) => {
     joined = true;
     joinPending = false;
+    lastWinnerId = null;
+    $("#rematch-request").hidden = true; $("#rematch-accept").hidden = true; $("#rematch-status").hidden = true;
     roomId = data.id;
     world = data.world;
     objects = new Map(data.objects.map((o) => [o.id, o]));
@@ -322,6 +345,7 @@ function wireSocket() {
   socket.on("match:ended", (data) => {
     if (roomId && data.id !== roomId) return;
     const wasLeaving = !joined;
+    lastWinnerId = data.winnerId;
     joined = false;
     joinPending = false;
     roomId = null;
@@ -332,6 +356,9 @@ function wireSocket() {
     lobbyText();
     const me = data.players.find((p) => p.userId === user.id);
     if (!me) return;
+    $("#rematch-request").hidden = data.winnerId === null || data.winnerId === user.id;
+    $("#rematch-accept").hidden = true;
+    $("#rematch-status").hidden = true;
     const outcome =
       data.winnerId === null
         ? "An appetite for a rematch."
@@ -560,4 +587,6 @@ try {
 }
 resize();
 requestAnimationFrame(render);
+
+
 

@@ -6,10 +6,11 @@ Hosted edition of the original two-player black-hole game.
 - Original landing page, username/password registration and login, Canvas artwork, and three maps.
 - Passwords use salted scrypt hashes. Session cookies are HttpOnly, SameSite=Strict, Secure, and host-scoped in production.
 - Cloudflare D1 stores accounts, hashed sessions, the shared arena, and each player's match history.
-- Native WebSockets carry live state. Same-origin HTTP polling is an automatic fallback if a browser or hosting proxy cannot establish a WebSocket.
+- Native WebSockets carry live state and match actions. Gameplay has no HTTP polling fallback; if a WebSocket cannot connect, the game shows a connection error and retries.
 - Two players share one authoritative arena. D1 version checks serialize conflicting updates across Worker instances.
 - Clients submit only direction. Growth, consumption, scores, map selection, match completion, and capacity are enforced by the server.
-- The arena advances when authenticated players send updates; finished results are committed atomically with the final arena state.
+- The arena advances when authenticated players send WebSocket updates; finished results are committed atomically with the final arena state.
+- After a decisive round, only the losing player can request a rematch, and only the winner can accept it. Acceptance starts a fresh round on the same map.
 - A dropped connection forfeits an active round. An unresponsive player is removed after ten seconds on the next arena update.
 - Original localhost accounts are not uploaded. Register a new account on this Site.
 
@@ -31,3 +32,4 @@ The cloud tests pass, the Sites production build succeeds, and the built Worker 
 Use Node.js 24.15+ in the 24.x series. Install dependencies with `npm ci`, then follow the Sites starter instructions for generating/applying local D1 migrations and previewing the built Worker. The Sites plugin applies hosted migrations when publishing.
 
 The publication is self-contained and does not depend on the original localhost server. Production networking latency varies with each connection and database round-trip time. This implementation is intentionally scoped to two players, rather than a high-volume competitive game service.
+
