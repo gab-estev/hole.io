@@ -293,6 +293,7 @@ function wireSocket() {
     $("#rematch-request").hidden = !(phase === "ended" && lastWinnerId !== null && lastWinnerId !== user.id && !rematch);
     $("#rematch-accept").hidden = !(phase === "ended" && lastWinnerId === user.id && !!rematch && !rematch.acceptedAt);
     $("#rematch-status").hidden = !rematch;
+    $("#join").hidden = !!rematch;
     if (rematch) $("#rematch-status").textContent = lastWinnerId === user.id ? "Your rival requested a rematch." : "Rematch requested. Waiting for the winner to accept…";
   });
   socket.on("match:waiting", (data) => {
@@ -587,6 +588,7 @@ try {
 }
 resize();
 requestAnimationFrame(render);
+
 
 
 
