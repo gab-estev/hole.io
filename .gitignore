@@ -33,6 +33,7 @@ yarn-error.log*
 
 # Checkout-local tool state
 /.wrangler/
+/.wrangler-home/
 /.sites-runtime/
 
 # Workspace scaffolding and publication archives
@@ -43,3 +44,4 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
+

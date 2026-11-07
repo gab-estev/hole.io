@@ -1,3 +1,4 @@
+export { ArenaDurableObject } from "../lib/game/arena-do.js";
 import landing from "../content/index.html?raw";
 import arenaHtml from "../content/game.html?raw";
 import { gameRequest } from "../lib/game/cloud-api.js";
@@ -33,4 +34,5 @@ const worker = {
 };
 
 export default worker;
+
 

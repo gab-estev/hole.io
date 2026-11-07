@@ -7,7 +7,7 @@ import { sites } from "./scripts/vite/sites-vite-plugin";
 import { connectorPreview } from "./scripts/vite/connector-preview-plugin.mjs";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
-  "00000000-0000-4000-8000-000000000000";
+  process.env.CLOUDFLARE_D1_ID ?? "00000000-0000-4000-8000-000000000000";
 
 const { d1, r2 } = hostingConfig;
 
@@ -22,11 +22,18 @@ const localBindingConfig = {
     ? [
         {
           binding: d1,
-          database_name: "site-creator-d1",
+          database_name: "void-arena-db",
           database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
         },
       ]
     : [],
+  durable_objects: {
+    bindings: [{ name: "ARENA", class_name: "ArenaDurableObject" }],
+  },
+  migrations: [{ tag: "v1", new_sqlite_classes: ["ArenaDurableObject"] }],
+  exports: {
+    ArenaDurableObject: { type: "durable-object", storage: "sqlite" },
+  },
   r2_buckets: r2
     ? [
         {
@@ -90,3 +97,5 @@ export default defineConfig(async ({ command }) => {
     ],
   };
 });
+
+

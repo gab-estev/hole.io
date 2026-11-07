@@ -1,35 +1,24 @@
-# VOID Arena — ChatGPT Site
+# VOID Arena — Cloudflare Workers
 
-Hosted edition of the original two-player black-hole game.
+A real-time two-player hole game served from a Cloudflare Worker, with a Durable Object coordinating the live arena and D1 storing accounts, sessions, and results.
 
-## Hosted behavior
-- Original landing page, username/password registration and login, Canvas artwork, and three maps.
-- Passwords use salted scrypt hashes. Session cookies are HttpOnly, SameSite=Strict, Secure, and host-scoped in production.
-- Cloudflare D1 stores accounts, hashed sessions, the shared arena, and each player's match history.
-- Native WebSockets carry live state and match actions. Gameplay has no HTTP polling fallback; if a WebSocket cannot connect, the game shows a connection error and retries.
-- Two players share one authoritative arena. D1 version checks serialize conflicting updates across Worker instances.
-- Clients submit only direction. Growth, consumption, scores, map selection, match completion, and capacity are enforced by the server.
-- The arena advances when authenticated players send WebSocket updates; finished results are committed atomically with the final arena state.
-- After a decisive round, only the losing player can request a rematch, and only the winner can accept it. Acceptance starts a fresh round on the same map.
-- A dropped connection forfeits an active round. An unresponsive player is removed after ten seconds on the next arena update.
-- Original localhost accounts are not uploaded. Register a new account on this Site.
+## Stack
+- Cloudflare Workers serves the site and authenticated HTTP routes.
+- A SQLite-backed Durable Object holds the authoritative live arena, coordinates both players over native WebSockets, and persists movement without a D1 write on every frame.
+- D1 stores accounts, password hashes, sessions, match records, and scores.
+- Registration, login, three maps, match history, capacity enforcement, and loser-request/winner-accept rematches are included.
 
-## Layout
-- `content/`: complete landing/game HTML.
-- `public/assets/`: styles, rendering, input, and cloud WebSocket client.
-- `lib/game/engine.js`: map generation and simulation.
-- `lib/game/cloud-auth.js`: credentials and sessions.
-- `lib/game/cloud-arena.js`: database-backed matchmaking, simulation, and results.
-- `lib/game/cloud-api.js`: authenticated routes and WebSocket handling.
-- `worker/index.ts`: Sites Worker entrypoint, retaining the starter's Sites integration.
-- `db/schema.ts` and `drizzle/`: cloud database schema and migration.
-- `tests/cloud.test.mjs`: account, security, concurrency, capacity, and durable-results checks.
+## Deploy to your Cloudflare account
+1. Install Node.js 24 or newer and install dependencies with `npm ci`.
+2. Authenticate Wrangler with your Cloudflare account: `npx wrangler login`.
+3. Create the database: `npx wrangler d1 create void-arena-db`. Copy the returned database ID into the `CLOUDFLARE_D1_ID` environment variable.
+4. Apply the schema: `npm run build`, then `npm run db:apply:cloudflare`.
+5. Publish the Worker and static assets: `npm run deploy:cloudflare`.
 
-## Validation
-The cloud tests pass, the Sites production build succeeds, and the built Worker was checked locally with its actual D1 runtime. Browser checks verified registration, a native-WebSocket two-player match, movement, growth, and saved history.
+The first deployment creates the SQLite-backed Durable Object namespace from the Worker export and binding configuration. The public URL is printed by Wrangler and uses the `workers.dev` domain unless you configure a custom domain.
 
-## Development
-Use Node.js 24.15+ in the 24.x series. Install dependencies with `npm ci`, then follow the Sites starter instructions for generating/applying local D1 migrations and previewing the built Worker. The Sites plugin applies hosted migrations when publishing.
+## Free-plan notes
+Free usage has account-level limits. Worker and Durable Object requests, D1 reads/writes, and storage are subject to Cloudflare's current quotas. Going beyond a Free quota can interrupt requests until the quota resets.
 
-The publication is self-contained and does not depend on the original localhost server. Production networking latency varies with each connection and database round-trip time. This implementation is intentionally scoped to two players, rather than a high-volume competitive game service.
-
+## Local development
+Run `npm run dev` for the front-end development server. Use `npm run build` to build the production Worker. Durable Object and remote D1 behavior require Wrangler local/remote bindings.
