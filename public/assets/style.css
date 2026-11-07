@@ -809,6 +809,17 @@ kbd {
   color: var(--violet);
   background: #302a3e;
 }
+.result-badge.live {
+  color: #111;
+  background: var(--lime);
+  animation: live-pulse 1.8s ease-in-out infinite;
+}
+.live-round {
+  background: linear-gradient(90deg, #c5f36b0d, transparent 75%);
+}
+@keyframes live-pulse {
+  50% { opacity: 0.58; }
+}
 .history-row time {
   font-size: 10px;
   color: var(--muted);

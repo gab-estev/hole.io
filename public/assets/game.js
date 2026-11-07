@@ -35,6 +35,8 @@ let currentLobby = null;
 let groundMap = null;
 let particles = [];
 let lastFrame = performance.now();
+let savedMatches = [];
+let liveHistorySignature = "";
 
 async function api(path, options = {}) {
   const res = await fetch(path, { credentials: "same-origin", ...options });
@@ -111,46 +113,75 @@ function updateStats(stats) {
   $("#stat-wins").textContent = stats.wins;
   $("#stat-games").textContent = stats.games;
 }
+function renderHistory() {
+  const container = $("#history");
+  container.replaceChildren();
+  const me = latest?.players?.find((player) => player.userId === user?.id);
+  const live = phase === "playing" && latest && me;
+  if (live) {
+    const row = document.createElement("div");
+    row.className = "history-row live-round";
+    row.dataset.liveRound = "true";
+    const badge = document.createElement("span");
+    badge.className = "result-badge live";
+    badge.textContent = "LIVE";
+    const map = document.createElement("div");
+    map.textContent = labels[latest.map];
+    const status = document.createElement("small");
+    status.textContent = "Round in progress";
+    map.append(status);
+    const score = document.createElement("strong");
+    score.textContent = `${me.score.toLocaleString()} pts`;
+    const time = document.createElement("time");
+    const remaining = Math.max(0, Math.ceil(latest.remaining));
+    time.textContent = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")} left`;
+    row.append(badge, map, score, time);
+    container.append(row);
+  }
+  if (!savedMatches.length && !live) {
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "Your first round is waiting to happen.";
+    container.append(p);
+  }
+  for (const m of savedMatches) {
+    const row = document.createElement("div");
+    row.className = "history-row";
+    const badge = document.createElement("span");
+    badge.className = `result-badge ${m.result}`;
+    badge.textContent = { win: "WIN", loss: "LOSS", draw: "DRAW" }[m.result];
+    const map = document.createElement("div");
+    map.textContent = labels[m.map];
+    const reason = document.createElement("small");
+    reason.textContent =
+      {
+        time: "Time’s up",
+        absorbed: "A rival was swallowed",
+        opponent_left: "Round ended by forfeit",
+      }[m.reason] || m.reason;
+    map.append(reason);
+    const score = document.createElement("strong");
+    score.textContent = `${m.score.toLocaleString()} pts`;
+    const time = document.createElement("time");
+    time.dateTime = new Date(m.ended_at).toISOString();
+    time.textContent = new Date(m.ended_at).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+    time.title = new Date(m.ended_at).toLocaleString();
+    row.append(badge, map, score, time);
+    container.append(row);
+  }
+  liveHistorySignature = live
+    ? `${latest.id}:${me.score}:${Math.ceil(latest.remaining)}`
+    : "";
+}
 async function history() {
   try {
     const data = await api("/api/history");
     updateStats(data.stats);
-    const container = $("#history");
-    container.replaceChildren();
-    if (!data.matches.length) {
-      const p = document.createElement("p");
-      p.className = "muted";
-      p.textContent = "Your first round is waiting to happen.";
-      container.append(p);
-    }
-    for (const m of data.matches) {
-      const row = document.createElement("div");
-      row.className = "history-row";
-      const badge = document.createElement("span");
-      badge.className = `result-badge ${m.result}`;
-      badge.textContent = { win: "WIN", loss: "LOSS", draw: "DRAW" }[m.result];
-      const map = document.createElement("div");
-      map.textContent = labels[m.map];
-      const reason = document.createElement("small");
-      reason.textContent =
-        {
-          time: "Time’s up",
-          absorbed: "A rival was swallowed",
-          opponent_left: "Round ended by forfeit",
-        }[m.reason] || m.reason;
-      map.append(reason);
-      const score = document.createElement("strong");
-      score.textContent = `${m.score.toLocaleString()} pts`;
-      const time = document.createElement("time");
-      time.dateTime = new Date(m.ended_at).toISOString();
-      time.textContent = new Date(m.ended_at).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      });
-      time.title = new Date(m.ended_at).toLocaleString();
-      row.append(badge, map, score, time);
-      container.append(row);
-    }
+    savedMatches = data.matches;
+    renderHistory();
   } catch (err) {
     $("#game-error").textContent = err.message;
   }
@@ -222,6 +253,7 @@ $("#leave").addEventListener("click", () => {
   roomId = null;
   resetInput();
   setPhase("idle");
+  renderHistory();
   lobbyText();
   overlay(
     "TAKE A BREATHER",
@@ -265,6 +297,7 @@ function wireSocket() {
     roomId = null;
     resetInput();
     setPhase("idle");
+    renderHistory();
     lobbyText();
     $("#connection").textContent = "RECONNECTING";
     $("#connection-dot").classList.add("offline");
@@ -317,6 +350,8 @@ function wireSocket() {
     players = data.players.map((p) => ({ ...p }));
     latest = data;
     previous = data;
+    liveHistorySignature = "";
+    renderHistory();
     receivedAt = performance.now();
     particles = [];
     makeTerrain(data.map);
@@ -324,6 +359,7 @@ function wireSocket() {
     const me = players.find((p) => p.userId === user.id);
     camera = { x: me.x, y: me.y, scale: 1 };
     setPhase("playing");
+    renderHistory();
     lobbyText();
     $("#overlay").hidden = true;
     $("#map-label").textContent = labels[data.map].toUpperCase();
@@ -342,6 +378,11 @@ function wireSocket() {
     previous = latest;
     latest = data;
     receivedAt = performance.now();
+    const me = latest.players.find((player) => player.userId === user.id);
+    const signature = me
+      ? `${latest.id}:${me.score}:${Math.ceil(latest.remaining)}`
+      : "";
+    if (signature !== liveHistorySignature) renderHistory();
   });
   socket.on("match:ended", (data) => {
     if (roomId && data.id !== roomId) return;
@@ -354,6 +395,7 @@ function wireSocket() {
     players = data.players.map((p) => ({ ...p }));
     latest = data;
     setPhase("ended");
+    renderHistory();
     lobbyText();
     const me = data.players.find((p) => p.userId === user.id);
     if (!me) return;
