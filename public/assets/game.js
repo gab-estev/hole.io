@@ -326,8 +326,8 @@ function wireSocket() {
     $("#rematch-request").hidden = !(phase === "ended" && lastWinnerId !== null && lastWinnerId !== user.id && !rematch);
     $("#rematch-accept").hidden = !(phase === "ended" && lastWinnerId === user.id && !!rematch && !rematch.acceptedAt);
     $("#rematch-status").hidden = !rematch;
-    $("#join").hidden = !!rematch;
-    if (rematch) $("#rematch-status").textContent = lastWinnerId === user.id ? "Your rival requested a rematch." : "Rematch requested. Waiting for the winner to accept…";
+    $("#join").hidden = false;
+    if (rematch) $("#rematch-status").textContent = lastWinnerId === user.id ? "Your rival requested a rematch. Accept it or start a new round." : "Rematch requested. Waiting for the winner to accept, or start a new round.";
   });
   socket.on("match:waiting", (data) => {
     joined = true;
